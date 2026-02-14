@@ -406,32 +406,86 @@ function drawScene0_Pondicherry() {
     drawSignpost(80, 'Vellore →');
     drawSignpost(700, '🌴 Pondicherry');
     drawSignpost(1320, '← Delhi');
-    // Big floating sky location names
+    // === BIG SKY WORD ART (screen-centered, zone-based fade) ===
     const s = S();
-    ctx.save();
-    ctx.globalAlpha = 0.85;
-    ctx.font = `bold ${28 * s}px Nunito`;
-    ctx.textAlign = 'center';
-    // VELLORE - left side of scene
-    ctx.fillStyle = '#FFFFFF';
-    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-    ctx.lineWidth = 3 * s;
-    const vx = wx(160), vy = wy(60 + Math.sin(t * 0.025) * 5);
-    ctx.strokeText('VELLORE', vx, vy);
-    ctx.fillText('VELLORE', vx, vy);
-    // PONDICHERRY - center
-    ctx.fillStyle = '#FFF8E1';
-    const px = wx(700), py = wy(45 + Math.sin(t * 0.02 + 1) * 5);
-    ctx.font = `bold ${34 * s}px Nunito`;
-    ctx.strokeText('PONDICHERRY', px, py);
-    ctx.fillText('PONDICHERRY', px, py);
-    // DELHI - right side
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = `bold ${28 * s}px Nunito`;
-    const dx = wx(1320), dy = wy(60 + Math.sin(t * 0.025 + 2) * 5);
-    ctx.strokeText('DELHI', dx, dy);
-    ctx.fillText('DELHI', dx, dy);
-    ctx.restore();
+    const cx0 = cvs.width / 2;
+    // --- VELLORE (saffron-gold, warm academic glow) ---
+    { const zAlpha = Math.max(0, 1 - Math.abs(camX - 50) / 220);
+      if (zAlpha > 0.01) {
+        ctx.save();
+        const sz = 30 * s;
+        ctx.font = `bold italic ${sz}px Nunito`;
+        ctx.textAlign = 'center';
+        const ty = wy(65 + Math.sin(t * 0.03) * 6);
+        // Saffron gradient
+        const g = ctx.createLinearGradient(cx0 - 90*s, ty, cx0 + 90*s, ty);
+        g.addColorStop(0, '#FF9933'); g.addColorStop(0.5, '#FFD700'); g.addColorStop(1, '#FF6600');
+        ctx.fillStyle = g;
+        ctx.globalAlpha = zAlpha * 0.92;
+        ctx.shadowColor = '#FF8C00'; ctx.shadowBlur = 18 * s;
+        ctx.fillText('VELLORE', cx0, ty);
+        ctx.shadowBlur = 8 * s; ctx.fillText('VELLORE', cx0, ty);
+        ctx.shadowBlur = 0;
+        // Outer stroke
+        ctx.strokeStyle = 'rgba(139,69,19,0.35)'; ctx.lineWidth = 2.5 * s;
+        ctx.strokeText('VELLORE', cx0, ty);
+        ctx.restore();
+    }}
+    // --- PONDICHERRY (tropical coral→teal, per-letter wave) ---
+    { const zAlpha = Math.max(0, 1 - Math.abs(camX - 380) / 280);
+      if (zAlpha > 0.01) {
+        ctx.save();
+        const sz = 36 * s;
+        ctx.font = `bold ${sz}px Nunito`;
+        ctx.textAlign = 'center';
+        ctx.globalAlpha = zAlpha * 0.95;
+        const letters = 'PONDICHERRY'.split('');
+        const totalW = ctx.measureText('PONDICHERRY').width;
+        let offX = cx0 - totalW / 2;
+        const tColors = ['#FF6B6B','#FF8E72','#FFB347','#FFD700','#AEEA00','#69F0AE','#4DD0E1','#4FC3F7','#64B5F6','#7986CB','#9575CD'];
+        for (let i = 0; i < letters.length; i++) {
+            const lw = ctx.measureText(letters[i]).width;
+            const ly = wy(50 + Math.sin(t * 0.04 + i * 0.55) * 10);
+            ctx.fillStyle = tColors[i % tColors.length];
+            ctx.shadowColor = tColors[i % tColors.length]; ctx.shadowBlur = 12 * s;
+            ctx.textAlign = 'left';
+            ctx.fillText(letters[i], offX, ly);
+            ctx.shadowBlur = 0;
+            offX += lw;
+        }
+        // Sparkle dots
+        for (let i = 0; i < 8; i++) {
+            const sx2 = cx0 + Math.sin(t * 0.05 + i * 1.2) * (totalW * 0.55);
+            const sy2 = wy(35 + Math.cos(t * 0.04 + i * 0.9) * 18 + i * 3);
+            const sparkAlpha = 0.4 + 0.5 * Math.sin(t * 0.08 + i * 2);
+            ctx.globalAlpha = zAlpha * sparkAlpha;
+            ctx.fillStyle = '#FFF';
+            ctx.beginPath(); ctx.arc(sx2, sy2, (1.5 + Math.sin(t*0.06+i)*1) * s, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+    }}
+    // --- DELHI (Red Fort red→orange, metropolitan shimmer) ---
+    { const zAlpha = Math.max(0, 1 - Math.abs(camX - 720) / 220);
+      if (zAlpha > 0.01) {
+        ctx.save();
+        const sz = 30 * s;
+        ctx.font = `bold ${sz}px Nunito`;
+        ctx.textAlign = 'center';
+        const ty = wy(65 + Math.sin(t * 0.028 + 1) * 6);
+        // Red Fort gradient
+        const g = ctx.createLinearGradient(cx0 - 70*s, ty - sz, cx0 + 70*s, ty);
+        g.addColorStop(0, '#C62828'); g.addColorStop(0.5, '#E53935'); g.addColorStop(1, '#FF7043');
+        ctx.fillStyle = g;
+        ctx.globalAlpha = zAlpha * 0.92;
+        // Pulsing glow
+        const pulse = 12 + Math.sin(t * 0.06) * 6;
+        ctx.shadowColor = '#FF5722'; ctx.shadowBlur = pulse * s;
+        ctx.fillText('DELHI', cx0, ty);
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(80,0,0,0.3)'; ctx.lineWidth = 2 * s;
+        ctx.strokeText('DELHI', cx0, ty);
+        ctx.restore();
+    }}
     // Party lights
     drawPartyLights(600, 900);
 }
@@ -492,19 +546,45 @@ function drawScene1_Goa() {
     // Clouds
     drawCloud(300, 50, 22, 0.2);
     drawCloud(800, 40, 28, 0.15);
-    // Big floating GOA sky text
-    const gs = S();
-    ctx.save();
-    ctx.globalAlpha = 0.9;
-    ctx.font = `bold ${42 * gs}px Nunito`;
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#FFF';
-    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
-    ctx.lineWidth = 3 * gs;
-    const gx = wx(650), gy = wy(50 + Math.sin(t * 0.02) * 6);
-    ctx.strokeText('GOA', gx, gy);
-    ctx.fillText('GOA', gx, gy);
-    ctx.restore();
+    // === GOA — neon sunset per-letter bounce ===
+    { const gs = S();
+      ctx.save();
+      const sz = 50 * gs;
+      ctx.font = `bold ${sz}px Nunito`;
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = 0.95;
+      const letters = ['G','O','A'];
+      const goaColors = ['#FF6EC7','#FF9A3C','#FFE156'];
+      const goaGlows  = ['#FF1493','#FF6600','#FFD700'];
+      const totalW = ctx.measureText('GOA').width;
+      let offX = cvs.width / 2 - totalW / 2;
+      for (let i = 0; i < 3; i++) {
+          const lw = ctx.measureText(letters[i]).width;
+          const bounce = Math.sin(t * 0.05 + i * 1.1) * 14;
+          const ly = wy(50 + bounce);
+          ctx.textAlign = 'left';
+          // Rainbow glow cycle
+          const glowPhase = (Math.sin(t * 0.04 + i * 2) + 1) / 2;
+          ctx.shadowColor = goaGlows[i]; ctx.shadowBlur = (15 + glowPhase * 12) * gs;
+          ctx.fillStyle = goaColors[i];
+          ctx.fillText(letters[i], offX, ly);
+          // Double glow
+          ctx.shadowBlur = (8 + glowPhase * 6) * gs;
+          ctx.fillText(letters[i], offX, ly);
+          ctx.shadowBlur = 0;
+          offX += lw;
+      }
+      // Glitter sparkles around text
+      for (let i = 0; i < 6; i++) {
+          const sx2 = cvs.width/2 + Math.sin(t*0.06 + i*1.5) * (totalW * 0.7);
+          const sy2 = wy(30 + Math.cos(t*0.05 + i*1.1) * 25 + i*4);
+          const sa = 0.3 + 0.6 * Math.sin(t*0.1 + i*3);
+          ctx.globalAlpha = sa;
+          ctx.fillStyle = goaColors[i % 3];
+          ctx.beginPath(); ctx.arc(sx2, sy2, (2 + Math.sin(t*0.08+i)*1.5) * gs, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.restore();
+    }
     // Ocean
     drawWaves(GY - 5, '#1565C0', '#1976D2');
     // Beach sand ground
