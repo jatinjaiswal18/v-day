@@ -2,33 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Will you be my Valentine? 💕</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Our Story 💕</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-    <div class="hearts-bg"></div>
+    <canvas id="game"></canvas>
 
-    <div class="container">
-        <h1>Will you be my Valentine? 💕</h1>
-
-        <div class="gif-container">
-            <img id="cat-gif" src="https://media.tenor.com/EBV7OT7ACfwAAAAj/u-u-qua-qua-u-quaa.gif" alt="cute character">
+    <!-- Start Screen -->
+    <div id="start-screen">
+        <div class="start-content">
+            <h1 class="pixel-title">Our Story</h1>
+            <p class="start-subtitle">A journey through us</p>
+            <p class="start-prompt">Press any key or tap to begin</p>
         </div>
-
-        <div class="buttons">
-            <button id="yes-btn" onclick="handleYesClick()">Yes</button>
-            <button id="no-btn" onclick="handleNoClick()">No</button>
-        </div>
-        <div id="tease-toast"></div>
     </div>
 
-    <audio id="bg-music" loop autoplay muted>
+    <!-- Progress Bar -->
+    <div id="progress-bar"></div>
+
+    <!-- Heart Counter -->
+    <div id="heart-counter">❤️ × <span id="heart-count">0</span></div>
+
+    <!-- Polaroid Overlay -->
+    <div id="polaroid-overlay" class="hidden">
+        <div id="polaroid-frame">
+            <div id="polaroid-photos"></div>
+            <p id="polaroid-caption"></p>
+        </div>
+        <p class="polaroid-dismiss">Press any key or tap to continue →</p>
+    </div>
+
+    <!-- Valentine Overlay -->
+    <div id="valentine-overlay" class="hidden">
+        <h1 class="valentine-question">Will you be my Valentine, Sanna? 💕</h1>
+        <button id="valentine-yes-btn" onclick="handleValentineYes()">Yes!</button>
+    </div>
+
+    <!-- Celebration Overlay -->
+    <div id="celebration-overlay" class="hidden">
+        <h1 class="celebration-title">Forever Yours ❤️</h1>
+        <p class="celebration-message">Happy Valentine's Day, Sanna!</p>
+    </div>
+
+    <!-- Mobile Controls -->
+    <div id="mobile-controls">
+        <button id="btn-left" class="mobile-btn">◀</button>
+        <button id="btn-right" class="mobile-btn">▶</button>
+    </div>
+
+    <!-- Music -->
+    <audio id="bg-music" loop>
         <source src="music/beabadoobee - Glue Song (Lyrics).mp3" type="audio/mpeg">
     </audio>
-
     <button id="music-toggle" onclick="toggleMusic()" title="Toggle music">🔊</button>
 
     <script src="script.js"></script>
