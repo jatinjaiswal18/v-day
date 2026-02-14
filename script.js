@@ -402,10 +402,36 @@ function drawScene0_Pondicherry() {
     drawPalm(520, 50);
     drawPalm(880, 60);
     drawPalm(1250, 48);
-    // Signposts
+    // Signposts (small)
     drawSignpost(80, 'Vellore →');
     drawSignpost(700, '🌴 Pondicherry');
     drawSignpost(1320, '← Delhi');
+    // Big floating sky location names
+    const s = S();
+    ctx.save();
+    ctx.globalAlpha = 0.85;
+    ctx.font = `bold ${28 * s}px Nunito`;
+    ctx.textAlign = 'center';
+    // VELLORE - left side of scene
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = 3 * s;
+    const vx = wx(160), vy = wy(60 + Math.sin(t * 0.025) * 5);
+    ctx.strokeText('VELLORE', vx, vy);
+    ctx.fillText('VELLORE', vx, vy);
+    // PONDICHERRY - center
+    ctx.fillStyle = '#FFF8E1';
+    const px = wx(700), py = wy(45 + Math.sin(t * 0.02 + 1) * 5);
+    ctx.font = `bold ${34 * s}px Nunito`;
+    ctx.strokeText('PONDICHERRY', px, py);
+    ctx.fillText('PONDICHERRY', px, py);
+    // DELHI - right side
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `bold ${28 * s}px Nunito`;
+    const dx = wx(1320), dy = wy(60 + Math.sin(t * 0.025 + 2) * 5);
+    ctx.strokeText('DELHI', dx, dy);
+    ctx.fillText('DELHI', dx, dy);
+    ctx.restore();
     // Party lights
     drawPartyLights(600, 900);
 }
@@ -466,6 +492,19 @@ function drawScene1_Goa() {
     // Clouds
     drawCloud(300, 50, 22, 0.2);
     drawCloud(800, 40, 28, 0.15);
+    // Big floating GOA sky text
+    const gs = S();
+    ctx.save();
+    ctx.globalAlpha = 0.9;
+    ctx.font = `bold ${42 * gs}px Nunito`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#FFF';
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.lineWidth = 3 * gs;
+    const gx = wx(650), gy = wy(50 + Math.sin(t * 0.02) * 6);
+    ctx.strokeText('GOA', gx, gy);
+    ctx.fillText('GOA', gx, gy);
+    ctx.restore();
     // Ocean
     drawWaves(GY - 5, '#1565C0', '#1976D2');
     // Beach sand ground
