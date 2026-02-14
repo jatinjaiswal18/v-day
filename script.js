@@ -1743,6 +1743,7 @@ function updateProgressBar() {
 
 const music = document.getElementById('bg-music');
 music.volume = 0.3;
+music.currentTime = 40;
 
 function toggleMusic() {
     if (musicOn) {
@@ -1750,6 +1751,7 @@ function toggleMusic() {
         musicOn = false;
         document.getElementById('music-toggle').textContent = '🔇';
     } else {
+        if (music.currentTime < 40) music.currentTime = 40;
         music.play().catch(() => {});
         musicOn = true;
         document.getElementById('music-toggle').textContent = '🔊';
