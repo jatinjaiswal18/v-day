@@ -63,6 +63,12 @@ resize();
 function S() { return cvs.height / VH; }
 function VW() { return cvs.width / S(); }
 
+// ==================== HEAD IMAGES ====================
+const maleHeadImg = new Image();
+maleHeadImg.src = 'photos/male-head.png';
+const femaleHeadImg = new Image();
+femaleHeadImg.src = 'photos/female-head.png';
+
 // World to screen helpers
 function wx(worldX) { return (worldX - camX) * S(); }
 function wy(worldY) { return worldY * S(); }
@@ -285,158 +291,44 @@ function drawPerson(worldX, worldY, colors, frame, faceRight, isFemale, alpha) {
     ctx.save();
     if (alpha != null && alpha < 1) ctx.globalAlpha = alpha;
 
-    // ===== BOBBLEHEAD CARICATURE =====
-    // Giant head: ~14p radius, tiny body: ~6p tall
-    const headR = 7.5 * p;    // big ol' head radius
+    // ===== BOBBLEHEAD CARICATURE WITH PHOTO HEAD =====
+    const headR = 7.5 * p;    // big head radius
     const headCX = x;
-    const headCY = y - 12 * p; // head center (raised)
+    const headCY = y - 12 * p;
 
-    // --- HAIR (drawn behind head for female) ---
-    if (isFemale) {
-        // Long flowing hair behind head
-        ctx.fillStyle = colors.hair;
-        // Hair volume on top
-        ctx.beginPath();
-        ctx.arc(headCX, headCY - 1 * p, headR + 1.5 * p, Math.PI * 0.85, Math.PI * 0.15, true);
-        ctx.fill();
-        // Left hair strand flowing down
-        ctx.beginPath();
-        ctx.moveTo(headCX - headR - 0.5 * p, headCY - 1 * p);
-        ctx.quadraticCurveTo(headCX - headR - 2 * p, headCY + headR + 4 * p,
-                             headCX - headR + 1 * p, headCY + headR + 9 * p);
-        ctx.lineTo(headCX - headR + 3 * p, headCY + headR + 8 * p);
-        ctx.quadraticCurveTo(headCX - headR, headCY + headR + 2 * p,
-                             headCX - headR + 1 * p, headCY);
-        ctx.fill();
-        // Right hair strand flowing down
-        ctx.beginPath();
-        ctx.moveTo(headCX + headR + 0.5 * p, headCY - 1 * p);
-        ctx.quadraticCurveTo(headCX + headR + 2 * p, headCY + headR + 4 * p,
-                             headCX + headR - 1 * p, headCY + headR + 9 * p);
-        ctx.lineTo(headCX + headR - 3 * p, headCY + headR + 8 * p);
-        ctx.quadraticCurveTo(headCX + headR, headCY + headR + 2 * p,
-                             headCX + headR - 1 * p, headCY);
-        ctx.fill();
-    }
-
-    // --- HEAD (big circle) ---
-    ctx.fillStyle = colors.skin;
-    ctx.beginPath();
-    ctx.arc(headCX, headCY, headR, 0, Math.PI * 2);
-    ctx.fill();
-    // Subtle head outline
-    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
-    ctx.lineWidth = 1.2 * s;
-    ctx.stroke();
-
-    // --- BALD DOME SHINE ---
-    if (!isFemale && colors.bald) {
-        // Shiny bald highlight
-        ctx.fillStyle = 'rgba(255,255,255,0.18)';
-        ctx.beginPath();
-        ctx.arc(headCX - 2 * p, headCY - 3 * p, 4 * p, 0, Math.PI * 2);
-        ctx.fill();
-        // Stubble dots on sides/back
-        ctx.fillStyle = 'rgba(60,60,60,0.15)';
-        for (let i = 0; i < 12; i++) {
-            const angle = Math.PI * (0.55 + i * 0.06);
-            const sr = headR - 0.8 * p;
-            ctx.beginPath();
-            ctx.arc(headCX + Math.cos(angle) * sr, headCY + Math.sin(angle) * sr, 0.5 * p, 0, Math.PI * 2);
-            ctx.fill();
+    // --- PHOTO HEAD (circular crop, flipped if facing left) ---
+    const headImg = isFemale ? femaleHeadImg : maleHeadImg;
+    if (headImg.complete && headImg.naturalWidth > 0) {
+        ctx.save();
+        // Flip horizontally if facing left
+        if (!faceRight) {
+            ctx.translate(headCX, headCY);
+            ctx.scale(-1, 1);
+            ctx.translate(-headCX, -headCY);
         }
-    }
-
-    // --- FEMALE HAIR ON TOP (bangs/top-of-head) ---
-    if (isFemale) {
-        ctx.fillStyle = colors.hair;
-        // Hair crown on top
+        // Clip to circle
         ctx.beginPath();
-        ctx.arc(headCX, headCY, headR + 1 * p, Math.PI * 1.15, Math.PI * 1.85);
-        ctx.quadraticCurveTo(headCX, headCY - headR - 3 * p, headCX - headR * 0.8, headCY - 2 * p);
-        ctx.fill();
-        // Side parting
+        ctx.arc(headCX, headCY, headR, 0, Math.PI * 2);
+        ctx.clip();
+        // Draw image filling the circle
+        ctx.drawImage(headImg,
+            headCX - headR, headCY - headR,
+            headR * 2, headR * 2);
+        ctx.restore();
+        // Soft circular border
+        ctx.save();
+        if (alpha != null && alpha < 1) ctx.globalAlpha = alpha;
+        ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+        ctx.lineWidth = 1.5 * s;
         ctx.beginPath();
-        ctx.arc(headCX, headCY, headR + 1 * p, Math.PI * 1.15, Math.PI * 1.85);
-        ctx.fill();
-    }
-
-    // --- EYES (big expressive cartoon eyes) ---
-    const eyeDir = faceRight ? 1 : -1;
-    const eyeSpacing = 2.8 * p;
-    const eyeY = headCY + 0.5 * p;
-    const eyeW = 2.5 * p, eyeH = 3 * p;
-    for (let ei = -1; ei <= 1; ei += 2) {
-        const ex = headCX + ei * eyeSpacing + eyeDir * 0.5 * p;
-        // White
-        ctx.fillStyle = '#FFF';
-        ctx.beginPath();
-        ctx.ellipse(ex, eyeY, eyeW * 0.5, eyeH * 0.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-        ctx.lineWidth = 0.7 * s;
+        ctx.arc(headCX, headCY, headR, 0, Math.PI * 2);
         ctx.stroke();
-        // Pupil
-        ctx.fillStyle = '#1A1A1A';
+        ctx.restore();
+    } else {
+        // Fallback: simple circle head if image not loaded
+        ctx.fillStyle = colors.skin;
         ctx.beginPath();
-        ctx.arc(ex + eyeDir * 0.5 * p, eyeY + 0.2 * p, 1 * p, 0, Math.PI * 2);
-        ctx.fill();
-        // Eye shine
-        ctx.fillStyle = '#FFF';
-        ctx.beginPath();
-        ctx.arc(ex + eyeDir * 0.8 * p, eyeY - 0.5 * p, 0.45 * p, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    // --- EYEBROWS ---
-    ctx.strokeStyle = isFemale ? colors.hair : 'rgba(40,40,40,0.6)';
-    ctx.lineWidth = 1.5 * s;
-    ctx.lineCap = 'round';
-    for (let ei = -1; ei <= 1; ei += 2) {
-        const bx = headCX + ei * eyeSpacing + eyeDir * 0.5 * p;
-        const by = eyeY - eyeH * 0.42;
-        ctx.beginPath();
-        ctx.moveTo(bx - 1.5 * p, by + (isFemale ? 0.3 : 0) * p);
-        ctx.lineTo(bx + 1.5 * p, by - (isFemale ? 0.3 : 0) * p);
-        ctx.stroke();
-    }
-
-    // --- NOSE ---
-    ctx.fillStyle = 'rgba(0,0,0,0.08)';
-    ctx.beginPath();
-    ctx.arc(headCX + eyeDir * 1 * p, headCY + 2.5 * p, 0.9 * p, 0, Math.PI * 2);
-    ctx.fill();
-
-    // --- SMILE ---
-    ctx.strokeStyle = '#C0392B';
-    ctx.lineWidth = 1.3 * s;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.arc(headCX + eyeDir * 0.5 * p, headCY + 3 * p, 2.5 * p, 0.15, Math.PI - 0.15);
-    ctx.stroke();
-    // Rosy cheeks
-    ctx.fillStyle = 'rgba(255,100,100,0.18)';
-    ctx.beginPath();
-    ctx.arc(headCX - 4 * p, headCY + 2.5 * p, 1.8 * p, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(headCX + 4 * p, headCY + 2.5 * p, 1.8 * p, 0, Math.PI * 2);
-    ctx.fill();
-
-    // --- FEMALE EXTRAS: small earrings, bindi ---
-    if (isFemale) {
-        // Bindi
-        ctx.fillStyle = '#E91E63';
-        ctx.beginPath();
-        ctx.arc(headCX + eyeDir * 0.5 * p, headCY - 3.5 * p, 0.7 * p, 0, Math.PI * 2);
-        ctx.fill();
-        // Small earrings
-        ctx.fillStyle = '#FFD700';
-        ctx.beginPath();
-        ctx.arc(headCX - headR + 0.5 * p, headCY + 2 * p, 0.8 * p, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(headCX + headR - 0.5 * p, headCY + 2 * p, 0.8 * p, 0, Math.PI * 2);
+        ctx.arc(headCX, headCY, headR, 0, Math.PI * 2);
         ctx.fill();
     }
 
