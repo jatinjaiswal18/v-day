@@ -34,9 +34,9 @@ print(f'Male head saved: {male_sq.size}')
 f = Image.open(os.path.join(base, 'female.png'))
 fw, fh = f.size
 print(f'Female source: {fw}x{fh}')
-# Normalized coords: top-left (0.23, 0.28), bottom-right (0.77, 0.82)
-fx1, fy1 = int(0.23 * fw), int(0.28 * fh)
-fx2, fy2 = int(0.77 * fw), int(0.82 * fh)
+# Normalized coords: top-left (0.23, 0.20), bottom-right (0.77, 0.74) — shifted up 15%
+fx1, fy1 = int(0.23 * fw), int(0.20 * fh)
+fx2, fy2 = int(0.77 * fw), int(0.74 * fh)
 fem_crop = f.crop((fx1, fy1, fx2, fy2))
 
 # Make it square (1:1)
