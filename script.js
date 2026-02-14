@@ -523,11 +523,18 @@ function drawScene2_Airport() {
     for (let i = 0; i < 8; i++) {
         ctx.fillRect(wx(220 + i * 58), wy(GY - 75), ws(35), ws(25));
     }
+    // "IGI AIRPORT" large banner
+    ctx.fillStyle = '#2C3E50';
+    ctx.fillRect(wx(300), wy(GY - 92), ws(300), ws(18));
+    ctx.fillStyle = '#FFF';
+    ctx.font = `bold ${16 * s}px Nunito`;
+    ctx.textAlign = 'center';
+    ctx.fillText('IGI AIRPORT', wx(450), wy(GY - 78));
     // "DEPARTURES" text
     ctx.fillStyle = '#E74C3C';
     ctx.font = `bold ${10 * s}px Nunito`;
     ctx.textAlign = 'center';
-    ctx.fillText('DEPARTURES', wx(450), wy(GY - 80));
+    ctx.fillText('DEPARTURES', wx(450), wy(GY - 62));
     // Ground — tarmac
     drawGround('#7F8C8D', '#6C7A7D');
     // Yellow lines on tarmac
@@ -684,13 +691,20 @@ function drawScene4_Reunion() {
     for (let i = 0; i < 6; i++) {
         ctx.fillRect(wx(280 + i * 72), wy(GY - 85), ws(45), ws(50));
     }
+    // "JFK AIRPORT" large banner
+    ctx.fillStyle = '#1B5E20';
+    ctx.fillRect(wx(330), wy(GY - 118), ws(340), ws(18));
+    ctx.fillStyle = '#FFF';
+    ctx.font = `bold ${16 * s}px Nunito`;
+    ctx.textAlign = 'center';
+    ctx.fillText('JFK AIRPORT', wx(500), wy(GY - 104));
     // "ARRIVALS" banner
     ctx.fillStyle = '#4CAF50';
-    ctx.fillRect(wx(380), wy(GY - 108), ws(240), ws(15));
+    ctx.fillRect(wx(380), wy(GY - 100), ws(240), ws(15));
     ctx.fillStyle = '#FFF';
     ctx.font = `bold ${11 * s}px Nunito`;
     ctx.textAlign = 'center';
-    ctx.fillText('✈️ ARRIVALS', wx(500), wy(GY - 97));
+    ctx.fillText('✈️ ARRIVALS', wx(500), wy(GY - 89));
     // Ground
     drawGround('#CFD8DC', '#B0BEC5');
     // Welcome flowers
@@ -776,6 +790,14 @@ function drawScene6_Wedding() {
     ctx.globalAlpha = 0.6;
     ctx.fillRect(wx(mx - 55), wy(GY - 95), ws(110), ws(20));
     ctx.globalAlpha = 1;
+    // #JASHAN banner on top beam
+    ctx.fillStyle = '#FFD700';
+    ctx.font = `bold ${18 * s}px Caveat`;
+    ctx.textAlign = 'center';
+    ctx.strokeStyle = '#BF360C';
+    ctx.lineWidth = 2 * s;
+    ctx.strokeText('#JASHAN', wx(mx), wy(GY - 110));
+    ctx.fillText('#JASHAN', wx(mx), wy(GY - 110));
     // Marigold garlands
     const garlandColors = ['#FF9800', '#FFC107', '#FFEB3B'];
     for (let g = 0; g < 3; g++) {
