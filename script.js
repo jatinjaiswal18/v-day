@@ -1066,8 +1066,11 @@ function updateCamera() {
 
 // ==================== INPUT ====================
 
+const GAME_KEYS = new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','a','A','d','D','w','W','s','S',' ']);
+
 document.addEventListener('keydown', e => {
     keysDown[e.key] = true;
+    if (GAME_KEYS.has(e.key)) e.preventDefault();
 
     if (gameState === 'start') {
         startGame();
@@ -1083,20 +1086,22 @@ document.addEventListener('keyup', e => {
     keysDown[e.key] = false;
 });
 
+// Clear stuck keys when window loses focus
+window.addEventListener('blur', () => {
+    keysDown = {};
+});
+
 // Touch input for start/polaroid
 document.addEventListener('touchstart', e => {
     if (gameState === 'start') { startGame(); return; }
     if (gameState === 'polaroid') { dismissPolaroid(); return; }
 }, { passive: true });
 
-// Mouse click for start/polaroid
+// Mouse click for start/polaroid/anywhere
 document.addEventListener('click', e => {
     if (gameState === 'start') { startGame(); return; }
     if (gameState === 'polaroid') {
-        // Don't dismiss if clicking the polaroid image itself
-        if (!e.target.closest('#polaroid-frame')) {
-            dismissPolaroid();
-        }
+        dismissPolaroid();
         return;
     }
 });
@@ -1158,32 +1163,34 @@ function showPolaroid() {
     overlay.classList.add('visible');
 }
 
+let dismissing = false;
+
 function dismissPolaroid() {
+    if (dismissing) return;
+    dismissing = true;
+
     const overlay = document.getElementById('polaroid-overlay');
     overlay.classList.remove('visible');
+
+    // Change game state IMMEDIATELY — don't wait for CSS animation
+    if (scenes[scene].cinematic === 'farewell') {
+        compState = 'farewell_anim';
+        compX = px - 25;
+    } else if (scenes[scene].cinematic === 'meeting') {
+        compState = 'together';
+        compFacing = true;
+    } else if (scenes[scene].cinematic === 'reunion') {
+        compState = 'together';
+        compFacing = true;
+    }
+    gameState = 'playing';
+    captionDone = true;
+
+    // Hide overlay after CSS fade completes
     setTimeout(() => {
         overlay.classList.add('hidden');
-
-        // Handle post-polaroid state based on scene cinematic type
-        if (scenes[scene].cinematic === 'farewell') {
-            // After farewell polaroid, companion starts fading
-            compState = 'farewell_anim';
-            compX = px - 25;
-            gameState = 'playing';
-        } else if (scenes[scene].cinematic === 'meeting') {
-            // After meeting polaroid, start playing together
-            compState = 'together';
-            compFacing = true;
-            gameState = 'playing';
-        } else if (scenes[scene].cinematic === 'reunion') {
-            compState = 'together';
-            compFacing = true;
-            gameState = 'playing';
-        } else {
-            gameState = 'playing';
-        }
-        captionDone = true;
-    }, 400);
+        dismissing = false;
+    }, 500);
 }
 
 // ==================== FADE SYSTEM ====================
@@ -1483,6 +1490,13 @@ function render() {
 
     // Draw fade overlay
     drawFade();
+
+    // Debug state display (temporary)
+    const ds = S();
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.font = `${9 * ds}px monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText(`state:${gameState} scene:${scene} caption:${captionDone} cin:${cinStep} fade:${fading}/${fadeAlpha.toFixed(2)}`, 8, cvs.height - 8);
 
     // Scene indicator arrow (walk right hint)
     if (gameState === 'playing' && captionDone && t % 120 < 80) {
