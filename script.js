@@ -1199,14 +1199,18 @@ function updateFade() {
         if (fadeAlpha >= 1) {
             fadeAlpha = 1;
             fading = 0;
-            if (fadeCallback) { fadeCallback(); fadeCallback = null; }
+            const cb = fadeCallback;
+            fadeCallback = null;
+            if (cb) cb();
         }
     } else if (fading === -1) {
         fadeAlpha -= 0.03;
         if (fadeAlpha <= 0) {
             fadeAlpha = 0;
             fading = 0;
-            if (fadeCallback) { fadeCallback(); fadeCallback = null; }
+            const cb = fadeCallback;
+            fadeCallback = null;
+            if (cb) cb();
         }
     }
 }
