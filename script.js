@@ -12,11 +12,11 @@ const SCENE_COUNT = 9;
 
 // Character color palettes
 const PLAYER_COLORS = {
-    hair: '#2C1810', skin: '#EDBC8A', eyes: '#1A1A1A',
-    top: '#4A90D9', bottom: '#34495E', shoes: '#1A1A1A'
+    hair: '#C68642', skin: '#C68642', eyes: '#1A1A1A',
+    top: '#3498DB', bottom: '#2C3E50', shoes: '#1A1A1A', bald: true
 };
 const SANJANA_COLORS = {
-    hair: '#0A0A0A', skin: '#EDBC8A', eyes: '#1A1A1A',
+    hair: '#3B2218', skin: '#C68642', eyes: '#1A1A1A',
     top: '#E84393', bottom: '#8E44AD', shoes: '#C0392B'
 };
 
@@ -288,10 +288,17 @@ function drawPerson(worldX, worldY, colors, frame, faceRight, isFemale, alpha) {
     // Hair
     ctx.fillStyle = colors.hair;
     if (isFemale) {
+        // Long straight hair
         ctx.fillRect(x - 3 * p, y - 15 * p, 6 * p, 3 * p);
-        // Long hair sides
-        ctx.fillRect(x - 3 * p, y - 12 * p, 1.2 * p, 5 * p);
-        ctx.fillRect(x + 1.8 * p, y - 12 * p, 1.2 * p, 5 * p);
+        // Hair sides going down past shoulders
+        ctx.fillRect(x - 3 * p, y - 12 * p, 1.4 * p, 8 * p);
+        ctx.fillRect(x + 1.6 * p, y - 12 * p, 1.4 * p, 8 * p);
+    } else if (colors.bald) {
+        // Bald head — just skin-colored dome, no hair block
+        ctx.fillStyle = colors.skin;
+        ctx.beginPath();
+        ctx.arc(x, y - 13 * p, 3 * p, Math.PI, 0);
+        ctx.fill();
     } else {
         ctx.fillRect(x - 2.5 * p, y - 15 * p, 5 * p, 2.5 * p);
     }
@@ -1076,7 +1083,7 @@ document.addEventListener('keydown', e => {
         startGame();
         return;
     }
-    if (gameState === 'polaroid') {
+    if (gameState === 'polaroid' && e.key === 'Enter') {
         dismissPolaroid();
         return;
     }
@@ -1490,13 +1497,6 @@ function render() {
 
     // Draw fade overlay
     drawFade();
-
-    // Debug state display (temporary)
-    const ds = S();
-    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.font = `${9 * ds}px monospace`;
-    ctx.textAlign = 'left';
-    ctx.fillText(`state:${gameState} scene:${scene} caption:${captionDone} cin:${cinStep} fade:${fading}/${fadeAlpha.toFixed(2)}`, 8, cvs.height - 8);
 
     // Scene indicator arrow (walk right hint)
     if (gameState === 'playing' && captionDone && t % 120 < 80) {
