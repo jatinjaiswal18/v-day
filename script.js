@@ -74,58 +74,58 @@ const scenes = [
         width: 1400, triggerX: 700,
         photos: ['photos/1.jpeg'],
         caption: "Pondicherry, 2017.\nYou were supposed to be my wingman... funny how that turned out 😏\nNo one from that trip talks anymore — it was only ever meant for us to meet.",
-        hearts: [{x:250,y:290},{x:450,y:275},{x:900,y:285},{x:1150,y:280}],
+        hearts: [{x:250,y:312},{x:450,y:316},{x:900,y:314},{x:1150,y:312}],
         cinematic: 'meeting'
     },
     { // 1 — Goa 2018
         width: 1300, triggerX: 650,
         photos: ['photos/2.jpeg'],
         caption: "Goa, 2018.\nYoung, in love, and not a single care in the world.\nStill one of my favorite memories with you, Sanna 🌅",
-        hearts: [{x:180,y:280},{x:380,y:290},{x:600,y:270},{x:900,y:285},{x:1100,y:278}],
+        hearts: [{x:180,y:314},{x:380,y:312},{x:600,y:316},{x:900,y:312},{x:1100,y:314}],
     },
     { // 2 — Airport farewell 2020
         width: 1300, triggerX: 600,
         photos: ['photos/3.jpeg'],
         caption: "2020. The hardest goodbye.\nI chased a dream 10,000 miles away from\nthe only person who felt like home ✈️",
-        hearts: [{x:200,y:288},{x:500,y:275},{x:850,y:282}],
+        hearts: [{x:200,y:314},{x:500,y:312},{x:850,y:316}],
         cinematic: 'farewell'
     },
     { // 3 — Long distance
         width: 1100, triggerX: 550,
         photos: ['photos/4.jpeg'],
         caption: "Time zones apart, but never really apart.\nOur e-date nights kept us going 💻🌙",
-        hearts: [{x:180,y:288},{x:400,y:278},{x:750,y:284}],
+        hearts: [{x:180,y:314},{x:400,y:312},{x:750,y:316}],
     },
     { // 4 — Reunion 2021
         width: 1300, triggerX: 650,
         photos: ['photos/5.jpeg'],
         caption: "2021. And then you showed up again.\nBest surprise life ever gave me 🛬❤️",
-        hearts: [{x:200,y:280},{x:450,y:290},{x:800,y:275},{x:1050,y:285}],
+        hearts: [{x:200,y:314},{x:450,y:312},{x:800,y:316},{x:1050,y:312}],
         cinematic: 'reunion'
     },
     { // 5 — Graduation 2022
         width: 1300, triggerX: 650,
         photos: ['photos/6.jpeg'],
         caption: "Graduation Day, 2022.\nIn front of everyone, I asked.\nAnd you said yes 💍🎓",
-        hearts: [{x:180,y:282},{x:420,y:278},{x:700,y:290},{x:1000,y:276}],
+        hearts: [{x:180,y:314},{x:420,y:312},{x:700,y:316},{x:1000,y:312}],
     },
     { // 6 — Wedding 2023
         width: 1300, triggerX: 650,
         photos: ['photos/7.jpeg'],
         caption: "January 2023.\nThe day you officially became my forever, Sanna 💒✨",
-        hearts: [{x:200,y:280},{x:480,y:288},{x:780,y:274},{x:1050,y:285}],
+        hearts: [{x:200,y:314},{x:480,y:312},{x:780,y:316},{x:1050,y:312}],
     },
     { // 7 — Marriage 3 years
         width: 1300, triggerX: 650,
         photos: ['photos/8a.jpeg','photos/8b.jpeg','photos/8c.jpeg'],
         caption: "3 amazing years of marriage.\nEvery single day with you has been a gift, Sanna 🏠💕",
-        hearts: [{x:160,y:286},{x:350,y:278},{x:560,y:288},{x:800,y:274},{x:1050,y:282}],
+        hearts: [{x:160,y:314},{x:350,y:312},{x:560,y:316},{x:800,y:312},{x:1050,y:314}],
     },
     { // 8 — Valentine's finale
         width: 1000, triggerX: 500,
         photos: [],
         caption: "",
-        hearts: [{x:100,y:278},{x:200,y:288},{x:300,y:272},{x:400,y:284},{x:500,y:276},{x:600,y:290},{x:700,y:270},{x:800,y:286}],
+        hearts: [{x:100,y:314},{x:200,y:312},{x:300,y:316},{x:400,y:312},{x:500,y:314},{x:600,y:312},{x:700,y:316},{x:800,y:314}],
         cinematic: 'valentine'
     }
 ];
@@ -1322,13 +1322,30 @@ function updateCinematic() {
             }
         }
     } else if (sd.cinematic === 'reunion') {
-        // Scene 4: player walks, at trigger, Sanjana appears from right
         if (cinStep === 0) {
-            // Wait for player to reach trigger naturally
-            // Actually, reunion cinematic starts when scene begins
-            // Player has control, but when they reach triggerX, cinematic triggers
-            gameState = 'playing'; // Let player walk
-            cinStep = 1; // Mark that we should watch for trigger
+            gameState = 'playing';
+            cinStep = 1;
+        } else if (cinStep === 2) {
+            // Sanjana appears from right
+            compVisible = true;
+            compAlpha = 1;
+            compX -= SPD * 0.9;
+            compFacing = false;
+            wTick++;
+            if (wTick >= 8) { wTick = 0; wFrame = (wFrame + 1) % 3; }
+
+            if (Math.abs(compX - px) < 30) {
+                cinStep = 3;
+                cinTimer = 0;
+                wFrame = 0;
+                compFacing = true;
+                spawnMeetingHearts((px + compX) / 2, GY - 15);
+            }
+        } else if (cinStep === 3) {
+            if (cinTimer > 50) {
+                showPolaroid();
+                cinStep = 4;
+            }
         }
     } else if (sd.cinematic === 'valentine') {
         // Scene 8: both walk together to center
@@ -1404,6 +1421,9 @@ function updatePlaying() {
             gameState = 'cinematic';
             cinStep = 2;
             cinTimer = 0;
+            compX = sd.width - 50;
+            compVisible = true;
+            compAlpha = 1;
         } else if (sd.cinematic === 'valentine' && cinStep === 1) {
             // Trigger valentine overlay
             gameState = 'valentine';
@@ -1416,34 +1436,6 @@ function updatePlaying() {
         } else if (!sd.cinematic || sd.cinematic === 'meeting') {
             // Normal caption trigger
             showPolaroid();
-        }
-    }
-
-    // Reunion cinematic steps
-    if (sd.cinematic === 'reunion' && gameState === 'cinematic') {
-        cinTimer++;
-        if (cinStep === 2) {
-            // Sanjana appears from right
-            compVisible = true;
-            compAlpha = 1;
-            if (compX === 0) compX = sd.width - 50;
-            compX -= SPD * 0.9;
-            compFacing = false;
-            wTick++;
-            if (wTick >= 8) { wTick = 0; wFrame = (wFrame + 1) % 3; }
-
-            if (Math.abs(compX - px) < 30) {
-                cinStep = 3;
-                cinTimer = 0;
-                wFrame = 0;
-                compFacing = true;
-                spawnMeetingHearts((px + compX) / 2, GY - 15);
-            }
-        } else if (cinStep === 3) {
-            if (cinTimer > 50) {
-                showPolaroid();
-                cinStep = 4;
-            }
         }
     }
 
